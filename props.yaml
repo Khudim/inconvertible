@@ -1,0 +1,17 @@
+profitCount: 3
+
+trinkets:
+  - { name: "hare1", x: 2266 , y: 1066, button: "right", pause: 1300 }
+  - { name: "hare2", x: 2266 , y: 1066, button: "right", pause: 1300 }
+  - { name: "hare3", x: 2266 , y: 1066, button: "right", pause: 1300 }
+
+buybacks:
+  - { name: "hfg", x: 53 , y: 247, button: "left", pause: 300 }
+  - { name: "2", x: 53 , y: 247, button: "left", pause: 300 }
+  - { name: "dfg", x: 53 , y: 247, button: "left", pause: 300 }
+
+buttons:
+  - { name: "login", x: 1274, y: 1322, button: "left", pause: 6000 }
+  - { name: "merch", x: 1322, y: 665, button: "right", pause: 300 }
+  - { name: "logout", x: 1273 , y: 789, button: "left", pause: 1000 }
+  - { name: "buyback", x: 164 , y: 698, button: "left", pause: 300 }
