@@ -17,9 +17,12 @@ type Template struct {
 
 type AppConfig struct {
 	ProfitCount int         `yaml:"profitCount"`
-	Buttons     []*Template `yaml:"buttons"`
 	Trinkets    []*Template `yaml:"trinkets"`
 	Buybacks    []*Template `yaml:"buybacks"`
+	Logins      []*Template `yaml:"logins"`
+	Merchants   []*Template `yaml:"merchants"`
+	Logouts     []*Template `yaml:"logouts"`
+	BuybackTabs []*Template `yaml:"buybackTabs"`
 }
 
 func main() {
@@ -34,11 +37,6 @@ func main() {
 		panic(err)
 	}
 
-	buttons := make(map[string]*Template)
-	for _, t := range appConf.Buttons {
-		buttons[t.Name] = t
-	}
-
 	log.Println("Погнали ёпта")
 	robotgo.MicroSleep(2000)
 
@@ -47,32 +45,50 @@ func main() {
 	for {
 		for i := 0; i < appConf.ProfitCount; i++ {
 			// login
-			click(buttons["login"])
+			for _, v := range appConf.Logins {
+				click(v)
+			}
 			// click merchant
-			click(buttons["merch"])
+			for _, v := range appConf.Merchants {
+				click(v)
+			}
 			// sell trinkets
 			for _, v := range appConf.Trinkets {
 				click(v)
 			}
 			// logout
-			tripleEsc()
-			click(buttons["logout"])
+			for _, v := range appConf.Logouts {
+				click(v)
+				tripleEsc()
+				click(v)
+			}
 		}
-		click(buttons["login"])
-		click(buttons["merch"])
+		// login
+		for _, v := range appConf.Logins {
+			click(v)
+		}
+		// click merchant
+		for _, v := range appConf.Merchants {
+			click(v)
+		}
 		// sell trinkets
 		for _, v := range appConf.Trinkets {
 			click(v)
 		}
 		// buyback button
-		click(buttons["buyback"])
+		for _, v := range appConf.BuybackTabs {
+			click(v)
+		}
 		// buyback trinkets
 		for _, v := range appConf.Buybacks {
 			click(v)
 		}
 		// logout
-		tripleEsc()
-		click(buttons["logout"])
+		for _, v := range appConf.Logouts {
+			click(v)
+			tripleEsc()
+			click(v)
+		}
 		robotgo.MicroSleep(1000)
 	}
 }
