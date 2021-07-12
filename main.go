@@ -1,8 +1,11 @@
 package main
 
 import (
+	"bytes"
 	"github.com/go-vgo/robotgo"
+	"github.com/kbinani/screenshot"
 	"gopkg.in/yaml.v2"
+	"image/png"
 	"io/ioutil"
 	"log"
 )
@@ -13,17 +16,25 @@ type Template struct {
 	Y      int     `json:"y"`
 	Button string  `json:"button"`
 	Pause  float64 `json:"pause"`
+	Width  int     `json:"width"`
+	Height int     `json:"height"`
 }
 
 type AppConfig struct {
 	ProfitCount int         `yaml:"profitCount"`
+	BotId       string      `yaml:"botId"`
+	ClientId    string      `yaml:"clientId"`
 	Trinkets    []*Template `yaml:"trinkets"`
 	Buybacks    []*Template `yaml:"buybacks"`
 	Logins      []*Template `yaml:"logins"`
 	Merchants   []*Template `yaml:"merchants"`
 	Logouts     []*Template `yaml:"logouts"`
+	Options     []*Template `yaml:"options"`
 	BuybackTabs []*Template `yaml:"buybackTabs"`
+	GoldInBags  []*Template `yaml:"goldInBags"`
 }
+
+var gold map[string][]byte
 
 func main() {
 	var appConf *AppConfig
@@ -37,8 +48,12 @@ func main() {
 		panic(err)
 	}
 
+	go startTelegramClient(appConf)
+
+	gold = make(map[string][]byte)
+
 	log.Println("Погнали ёпта")
-	robotgo.MicroSleep(2000)
+	robotgo.MicroSleep(3000)
 
 	go exitListener()
 
@@ -56,11 +71,10 @@ func main() {
 			for _, v := range appConf.Trinkets {
 				click(v)
 			}
-			// logout
-			for _, v := range appConf.Logouts {
+			// options + logout
+			for i, v := range appConf.Options {
 				click(v)
-				tripleEsc()
-				click(v)
+				click(appConf.Logouts[i])
 			}
 		}
 		// login
@@ -83,27 +97,22 @@ func main() {
 		for _, v := range appConf.Buybacks {
 			click(v)
 		}
-		// logout
-		for _, v := range appConf.Logouts {
-			click(v)
-			tripleEsc()
-			click(v)
+
+		for _, v := range appConf.GoldInBags {
+			body := makeScreenshot(v.X, v.Y, v.Width, v.Height)
+			gold[v.Name] = body
 		}
-		robotgo.MicroSleep(1000)
+
+		// options + logout
+		for i, v := range appConf.Options {
+			click(v)
+			click(appConf.Logouts[i])
+		}
 	}
 }
 
-func tripleEsc() {
-	robotgo.KeyTap("escape")
-	robotgo.MicroSleep(50)
-	robotgo.KeyTap("escape")
-	robotgo.MicroSleep(50)
-	robotgo.KeyTap("escape")
-	robotgo.MicroSleep(50)
-}
-
 func click(template *Template) {
-	robotgo.MoveMouseSmooth(template.X, template.Y, 0.9, 0.9)
+	robotgo.MoveMouseSmooth(template.X, template.Y, 0.5, 0.5)
 	robotgo.MouseClick(template.Button)
 	robotgo.MicroSleep(template.Pause)
 }
@@ -114,4 +123,13 @@ func exitListener() {
 			panic("exit")
 		}
 	}
+}
+
+func makeScreenshot(x, y, width, height int) []byte {
+	img, _ := screenshot.Capture(x, y, width, height)
+	var buf bytes.Buffer
+	if err := png.Encode(&buf, img); err != nil {
+		return []byte{}
+	}
+	return buf.Bytes()
 }
