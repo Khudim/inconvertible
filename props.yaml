@@ -1,5 +1,5 @@
 profitCount: 3
-botId: "1877296306:AAHW2oXsj_dXCIHEqWJZ3C3z7gQciZPQ8Gg"
+botId: "123"
 
 trinkets:
   - { name: "hare1", x: 2266 , y: 1066, button: "right", pause: 1300 }
